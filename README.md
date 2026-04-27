@@ -71,8 +71,11 @@ against any build of libIlmCtl that exposes those symbols.
 ## Requirements
 
 - Linux, macOS, or Windows. Wheels are built for Linux x86_64/aarch64,
-  macOS x86_64/arm64, and Windows AMD64.
-- Python 3.10 or newer. CI verifies 3.10, 3.11, 3.12, 3.13, and 3.14.
+  macOS x86_64/arm64, and Windows AMD64. The on-push CI matrix runs Linux
+  and macOS only; Windows is exercised by the wheel build pipeline on tag
+  pushes (vcpkg-managed Imath/OpenEXR).
+- Python 3.10 or newer. CI verifies 3.10, 3.11, 3.12, 3.13, and 3.14 on
+  Linux and macOS.
 - CMake 3.24+ and a C++17 compiler when building from source.
 - CTL itself, fetched and statically vendored into the wheel via CMake
   `FetchContent` against `aces-aswf/CTL@ctl-1.5.5`. Developer builds may
