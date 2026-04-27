@@ -1,0 +1,74 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check src/ tests/ benchmarks/
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libopenexr-dev libimath-dev ctl
+      - run: pip install --upgrade pip
+      - run: pip install -e .[dev,cov,parity]
+      - name: Run tests with coverage
+        # Exclude test_interrupt: SIGINT delivered to coverage.py's tracer
+        # escapes pytest's pytest.raises(KeyboardInterrupt) trap and kills the
+        # run. test_interrupt covers OS-signal plumbing, not Python code, so
+        # excluding it costs nothing on the coverage signal.
+        run: pytest --cov=ctl --cov-report=xml --cov-report=term -k "not interrupt"
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install build deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libopenexr-dev libimath-dev
+      - name: Install build deps (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake ninja openexr imath
+      - name: Install build deps (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install ninja
+          # OpenEXR/Imath on Windows is handled in Task 24 via vcpkg or
+          # cibuildwheel-managed deps. CI may fail here until then.
+        shell: bash
+      - run: pip install --upgrade pip
+      - run: pip install -e .[dev]
+      - run: pytest -v
