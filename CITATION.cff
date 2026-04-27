@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: If you use ctl-python in academic work, please cite it via the metadata below.
+type: software
+title: ctl-python
+abstract: >-
+  Native Python bindings for the CTL (Color Transformation Language)
+  interpreter. Provides a pybind11 extension that calls libIlmCtl
+  in-process, so applying CTL transforms to NumPy arrays no longer
+  requires shelling out to a subprocess or moving data through
+  intermediate EXR files. Caches loaded interpreters across calls and
+  invalidates on .ctl mtime change (including transitively imported
+  modules) so iterative CTL development in Python does not pay
+  repeated module-parse overhead.
+authors:
+  - family-names: Forsythe
+    given-names: Alex
+repository-code: https://github.com/aforsythe/ctl-python
+keywords:
+  - color science
+  - CTL
+  - Color Transformation Language
+  - ACES
+  - Python
+  - pybind11
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-04-27
