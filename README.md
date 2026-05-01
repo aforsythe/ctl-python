@@ -136,6 +136,16 @@ tag convention, for example `CTL_DEP_IMATH=3.1.11` becomes
 `gh:AcademySoftwareFoundation/Imath@3.1.11#v3.1.11`, while
 `CTL_DEP_CTL=1.5.5` becomes `gh:aces-aswf/CTL@1.5.5#ctl-1.5.5`.
 
+With `uv`, pass these definitions through scikit-build-core's PEP 517 config
+settings. This example rebuilds CTL from a local checkout and overrides
+OpenEXR with a CPM shorthand URI:
+
+```bash
+uv pip install -e ".[dev]" --reinstall \
+  -C cmake.define.CTL_DEP_CTL=/path/to/CTL \
+  -C cmake.define.CTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9
+```
+
 For a prebuilt CTL developer tree, use `-DCTL_SOURCE_DIR=/path/to/CTL` with
 `-DCTL_BUILD_DIR=/path/to/CTL-build`; this imports the existing CTL static
 libraries instead of adding CTL as a CPM subproject.
