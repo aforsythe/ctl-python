@@ -34,7 +34,8 @@ pybind11_add_module(_ctl_native MODULE ${NATIVE_SRC})
 
 target_link_libraries(_ctl_native PRIVATE
     CTL::IlmCtlSimd CTL::IlmCtlMath CTL::IlmCtl
-    Imath::Imath OpenEXR::Iex
+    Imath::Imath
+    $<$<TARGET_EXISTS:OpenEXR::Iex>:OpenEXR::Iex>
 )
 
 target_include_directories(_ctl_native PRIVATE src/_ctl_native)

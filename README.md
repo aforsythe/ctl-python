@@ -77,14 +77,16 @@ against any build of libIlmCtl that exposes those symbols.
 - Python 3.10 or newer. CI verifies 3.10, 3.11, 3.12, 3.13, and 3.14 on
   Linux and macOS.
 - CMake 3.24+ and a C++17 compiler when building from source.
-- CTL itself, fetched and statically vendored into the wheel via CMake
-  `FetchContent` against `aces-aswf/CTL@ctl-1.5.5`. Developer builds may
-  point at a local CTL checkout via `-DCTL_SOURCE_DIR=...` and
-  `-DCTL_BUILD_DIR=...`.
-- Imath and OpenEXR (CTL transitive deps). Provided automatically by the
-  wheel; from-source builds need the platform dev packages
-  (`libopenexr-dev` / `libimath-dev` on Debian/Ubuntu, `openexr` / `imath`
-  on Homebrew, `vcpkg install openexr imath` on Windows).
+- CTL itself, fetched and statically vendored into the wheel via CMake/CPM
+  against `aces-aswf/CTL@ctl-1.5.5`. Developer builds may point at a local
+  CTL checkout via `-DCTL_DEP_CTL=/path/to/CTL` to rebuild it as part of the
+  extension build.
+- Imath, OpenEXR, libdeflate, and zlib (CTL/OpenEXR transitive deps). CMake
+  first uses installed packages when available, then fetches missing pieces
+  with CPM. Use CPM's own switches to control this, such as
+  `-DCPM_LOCAL_PACKAGES_ONLY=ON` or `-DCPM_DOWNLOAD_ALL=ON`.
+- pybind11 is a Python build dependency from `pyproject.toml`; build isolation
+  makes its CMake package available to `find_package(pybind11 CONFIG)`.
 
 ## Quick Start
 
@@ -110,9 +112,33 @@ uv pip install -e ".[dev]"   # full build isolation; auto-fetches build deps
 pytest -v
 ```
 
-`pip install -e .` runs CMake which fetches `aces-aswf/CTL@ctl-1.5.5` into
+`pip install -e .` runs CMake which fetches missing native dependencies into
 the build tree on first configure (~30-60 s on a warm network). Subsequent
 rebuilds are incremental.
+
+### Native dependency overrides
+
+The native dependency graph is managed with CPM. Each native dependency has one
+cache variable that accepts a plain version/tag, a CPM shorthand URI, or a local
+source directory:
+
+```bash
+cmake -S . -B build \
+  -DCTL_DEP_CTL=1.5.5 \
+  -DCTL_DEP_IMATH=3.1.11 \
+  -DCTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9 \
+  -DCTL_DEP_LIBDEFLATE=gh:ebiggers/libdeflate#v1.18 \
+  -DCTL_DEP_ZLIB=/path/to/zlib
+```
+
+Plain versions are expanded to the project's default upstream repository and
+tag convention, for example `CTL_DEP_IMATH=3.1.11` becomes
+`gh:AcademySoftwareFoundation/Imath@3.1.11#v3.1.11`, while
+`CTL_DEP_CTL=1.5.5` becomes `gh:aces-aswf/CTL@1.5.5#ctl-1.5.5`.
+
+For a prebuilt CTL developer tree, use `-DCTL_SOURCE_DIR=/path/to/CTL` with
+`-DCTL_BUILD_DIR=/path/to/CTL-build`; this imports the existing CTL static
+libraries instead of adding CTL as a CPM subproject.
 
 When iterating on the C++ source, install the build backend into the venv
 once and pass `--no-build-isolation` for faster rebuilds (skips the
@@ -292,7 +318,8 @@ Gathered in one place so expectations are clear:
 ctl-python/
 |-- CMakeLists.txt
 |-- cmake/
-|   `-- FindOrFetchCTL.cmake     CTL discovery (developer / FetchContent)
+|   |-- CPM.cmake                CPM bootstrap
+|   `-- FindOrFetchCTL.cmake     CTL/dependency discovery (developer / CPM)
 |-- pyproject.toml               scikit-build-core build config
 |-- README.md
 |-- LICENSE
@@ -332,7 +359,8 @@ Apache License 2.0; see [`LICENSE`](LICENSE). Each source file carries an
 
 Third-party components retain their own licenses: CTL (the library this
 extension links against) is Apache 2.0; Imath and OpenEXR are
-BSD-3-Clause; pybind11 is BSD-3-Clause.
+BSD-3-Clause; libdeflate is MIT; zlib uses the zlib license; pybind11 is
+BSD-3-Clause.
 
 ## Copyright
 
