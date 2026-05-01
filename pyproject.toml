@@ -85,12 +85,9 @@ test-command = "pytest {project}/tests -k 'not parity_ctlrender and not parallel
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-before-all = "yum install -y openexr-devel imath-devel || apt-get update && apt-get install -y libopenexr-dev libimath-dev"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
-before-all = "brew install openexr imath"
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
-before-all = "vcpkg install openexr imath"
