@@ -126,8 +126,8 @@ source directory:
 cmake -S . -B build \
   -DCTL_DEP_CTL=1.5.5 \
   -DCTL_DEP_IMATH=3.1.11 \
-  -DCTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9 \
-  -DCTL_DEP_LIBDEFLATE=gh:ebiggers/libdeflate#v1.18 \
+  "-DCTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9" \
+  "-DCTL_DEP_LIBDEFLATE=gh:ebiggers/libdeflate#v1.18" \
   -DCTL_DEP_ZLIB=/path/to/zlib
 ```
 
