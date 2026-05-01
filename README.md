@@ -143,7 +143,7 @@ OpenEXR with a CPM shorthand URI:
 ```bash
 uv pip install -e ".[dev]" --reinstall \
   -C cmake.define.CTL_DEP_CTL=/path/to/CTL \
-  -C cmake.define.CTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9
+  -C 'cmake.define.CTL_DEP_OPENEXR=gh:AcademySoftwareFoundation/openexr@3.2.9#v3.2.9'
 ```
 
 For a prebuilt CTL developer tree, use `-DCTL_SOURCE_DIR=/path/to/CTL` with
